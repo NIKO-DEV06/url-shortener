@@ -1,73 +1,122 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+The starter repo serves as an excellent foundation for a NestJS project!
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Here’s what’s included in the starter repos:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- Adding to the tsconfig.json file
+- Setting up the ConfigModule and environment variables for Jest
+- Enforcing consistent HTTP response structure
+- Configuring some basic HTTP security
+- Adding whitelisted validation to the NestJS server
+- Setting up NestJS logging
+- Docker compose set up for a Postgres database & Redis
+- Prisma setup (the ORM we’ll be using in each project to interact with the database)
+- Redis and CacheService setup
+- Jest config (including env variables)
+- Setting up a CI Pipeline using Github Actions
 
-## Description
+Here's how to get started with the repo:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Cloning the repo
 
-## Installation
+Follow these steps to get started:
 
-```bash
-$ pnpm install
+1. Go to the [NestJS Starter Github repo](https://github.com/NIKO-DEV06/nestjs-starter)
+2. Press the Use this template button
+3. Follow the steps to create a new Github repo from the template
+4. Git clone your new repo onto your local machine. For example:
+
+```
+git clone https://github.com/NIKO-DEV06/nestjs-starter.git
 ```
 
-## Running the app
+Checkout into your new repo and follow the steps below:
 
-```bash
-# development
-$ pnpm run start
+## Local set up
 
-# watch mode
-$ pnpm run start:dev
+Install dependencies:
 
-# production mode
-$ pnpm run start:prod
+```
+pnpm install
 ```
 
-## Test
+Copy the env example file.
 
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+```
+cp .env.example .env
 ```
 
-## Support
+The NestJS server has 2 Docker Compose files. In both file, you need to update the name of the containers and networks where it says `# Needs updating`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+For example, here's an updated `docker-compose.yml` file for a project called "Url Shortener":
 
-## Stay in touch
+```yml
+version: '3.8'
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+services:
+  postgres_url_shortener: # Updated
+    image: postgres:alpine
+    container_name: postgres_url_shortener # Updated
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-## License
+  redis_url_shortener: # Updated
+    image: redis:alpine
+    container_name: redis_url_shortener # Updated
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
 
-Nest is [MIT licensed](LICENSE).
+networks:
+  default:
+    name: url_shortener # Updated
+
+volumes:
+  postgres_data:
+  redis_data:
+```
+
+Make sure you remember to also update the `docker-compose-test.yml` file!
+
+This repo comes with a default `User` model out of the box defined in the `/apps/backend/src/database/prisma.schema` file:
+
+```json
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+```
+
+Before you can run the local server, you need to apply this migration to your local Postgres database.
+
+Make sure on your local machine you don't have any existing Docker containers running that would cause a conflict.
+
+Then spin up the local Postgres database using this script:
+
+```shell
+pnpm docker:start
+```
+
+Then run this script to apply the migration to your local Postgres database:
+
+```shell
+pnpm db:migrate:dev
+```
+
+And that's it!
+
+You can now spin up your local server with this script:
+
+```shell
+pnpm start:dev
+```
